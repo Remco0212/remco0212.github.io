@@ -176,6 +176,12 @@
         input.maxLength = 1;
 
         input.addEventListener('keydown', (e) => {
+            if (e.key != 32 && (e.key < 48 || e.key > 57)) {
+                // Prevent the default action
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            }
+
             if (e.key === 'Backspace') {
                 if (e.target.parentElement.previousSibling) {
                     e.target.parentElement.previousSibling.firstChild.focus();
