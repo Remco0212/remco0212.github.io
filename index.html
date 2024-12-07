@@ -53,10 +53,33 @@
     input.form-control.absent {
         background: gray;
     }
+
+    .scoreboard {
+        display: flex;
+        font-size: 2rem;
+        flex-direction: column;
+        align-items: center;
+    }
 </style>
 
 <body>
     <div class="application">
+        <div class="scoreboard">
+            <div class="tries">
+                <span>Poging:</span>
+                <span class="value">1</span>
+                <span>van 6</span>
+            </div>
+            <div class="playedGames">
+                <span>Gespeeld:</span>
+                <span class="value">0</span>
+            </div>
+            <div class="wonGames">
+                <span>Gewonnen:</span>
+                <span class="value">0</span>
+                <span>van 5</span>
+            </div>
+        </div>
         <div class="container">
             <div class="container-row active">
                 <div class="form-group">
@@ -104,8 +127,42 @@
     ];
 
     const maxTries = 6;
+    let tries = 1;
     let randomWord = '';
     let playedGames = 0;
+    let wonGames = 0;
+
+    function resetGame() {
+        randomWord = words[Math.floor(Math.random() * words.length)];
+
+        if (usedWords.includes(randomWord)) {
+            resetGame();
+        }
+
+        const container = document.querySelector('.container');
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+        resetScoreBoard(false);
+        prepareInputs();
+    }
+
+    function resetScoreBoard(endGame) {
+        tries = 1;
+        if (endGame) {
+            playedGames = 0;
+            wonGames = 0;
+        }
+    }
+
+    function updateScoreBoard() {
+        const triesElement = document.querySelector('.scoreboard .tries .value');
+        triesElement.innerText = tries;
+        const playedGamesElement = document.querySelector('.scoreboard .playedGames .value');
+        playedGamesElement.innerText = playedGames;
+        const wonGamesElement = document.querySelector('.scoreboard .wonGames .value');
+        wonGamesElement.innerText = wonGames;
+    }
 
     function newInput() {
         const group = document.createElement('div');
@@ -114,6 +171,26 @@
         const input = document.createElement('input');
         input.className = "form-control";
         input.maxLength = 1;
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace') {
+                if (e.target.parentElement.previousSibling) {
+                    e.target.parentElement.previousSibling.firstChild.focus();
+                }
+            }
+        });
+
+        input.addEventListener('input', (e) => {
+            if (e.target.value.trim()) {
+                if (e.target.parentElement.nextSibling) {
+                    e.target.parentElement.nextSibling.firstChild.focus();
+                } else {
+                    validateWord();
+                }
+            }
+            input.value = input.value.replace(/\s/g, "");
+        });
+
         group.appendChild(input);
 
         return group;
@@ -129,6 +206,8 @@
             container.appendChild(containerRow);
         }
 
+        updateScoreBoard();
+
         while (containerRow.firstChild) {
             containerRow.removeChild(containerRow.firstChild);
         }
@@ -140,23 +219,12 @@
             if (i === 0) {
                 input.firstChild.focus();
             }
-
-            input.addEventListener('input', (e) => {
-                if (e.target.parentElement.nextSibling) {
-                    e.target.parentElement.nextSibling.firstChild.focus();
-                } else if (e.target.value) {
-                    validateWord();
-                }
-            });
         }
     }
 
     function init() {
-        randomWord = words[Math.floor(Math.random() * words.length)];
-
-        if (usedWords.includes(randomWord)) {
-            init();
-        }
+        resetGame();
+        resetScoreBoard(true);
 
         usedWords.push(randomWord);
 
@@ -169,6 +237,7 @@
     }
 
     function validateWord() {
+        tries++;
         const container = document.querySelector('.container-row.active');
 
         let guessedWord = '';
@@ -188,8 +257,14 @@
         }
 
         if (guessedWord === randomWord) {
+            wonGames++;
             playedGames++;
-            if (playedGames < 12 && confirm('Je hebt gewonnen, speel nogmaals voor een extra cadeau')) {
+            if (wonGames < 5) {
+                if (confirm('Je hebt het woord geraden, speel nogmaals voor een extra cadeau')) {
+                    resetGame();
+                }
+            } else {
+                confirm(`Je hebt het maximaal aantal cadeau's gewonnen.`);
                 init();
             }
         } else if (container.parentElement.childNodes.length < maxTries) {
@@ -197,7 +272,10 @@
 
             prepareInputs();
         } else {
-            confirm(`Helaas je hebt het niet gehaald binnen het aantal beurten. Het woord was '${randomWord}'`)
+            confirm(`Helaas je hebt het niet gehaald binnen het aantal beurten. Het woord was '${randomWord}'`);
+            playedGames++;
+
+            resetGame();
         }
     }
 
