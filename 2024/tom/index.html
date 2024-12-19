@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Suprise</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<style>
+    .background {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+    }
+
+    .application {
+        position: absolute;
+        z-index: 1;
+        left: 0;
+        right: 0;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 10px;
+        width: fit-content;
+    }
+
+    .container-row {
+        display: flex;
+    }
+
+    input.form-control {
+        width: 100px;
+        height: 100px;
+        text-align: center;
+        font-size: 10rem;
+        margin: 10px;
+        text-transform: uppercase;
+    }
+
+    input.form-control.correct {
+        background: green;
+    }
+
+    input.form-control.present {
+        background: orange;
+    }
+
+    input.form-control.absent {
+        background: gray;
+    }
+
+    .scoreboard {
+        display: flex;
+        font-size: 2rem;
+        flex-direction: column;
+        align-items: center;
+    }
+</style>
+
+<body>
+    <div class="application">
+        <div class="scoreboard">
+            <div class="tries">
+                <span>Poging:</span>
+                <span class="value">1</span>
+                <span>van 6</span>
+            </div>
+            <div class="playedGames">
+                <span>Gespeeld:</span>
+                <span class="value">0</span>
+            </div>
+            <div class="wonGames">
+                <span>Gewonnen:</span>
+                <span class="value">0</span>
+                <span>van 5</span>
+            </div>
+        </div>
+        <div class="container">
+            <div class="container-row active">
+                <div class="form-group">
+                    <input class="form-control">
+                </div>
+                <div class="form-group">
+                    <input class="form-control">
+                </div>
+                <div class="form-group">
+                    <input class="form-control">
+                </div>
+                <div class="form-group">
+                    <input class="form-control">
+                </div>
+                <div class="form-group">
+                    <input class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+    <img class="background" src="assets/Winter_Background.jpg">
+</body>
+<script>
+    let usedWords = [];
+
+    const words = [
+        'stoom',
+        'pakje',
+        'piet',
+        'pruik',
+        'feest',
+        'spijs',
+        'sint',
+        'zwart',
+        'daken',
+        'kind',
+        'stout',
+        'snoep',
+        'geven',
+        'boot',
+        'rijm',
+        'wens',
+        'cacao',
+        'kruid'
+    ];
+
+    const maxTries = 6;
+    let tries = 1;
+    let randomWord = '';
+    let playedGames = 0;
+    let wonGames = 0;
+
+    function resetGame() {
+        randomWord = words[Math.floor(Math.random() * words.length)];
+
+        if (usedWords.includes(randomWord)) {
+            resetGame();
+        }
+
+        const container = document.querySelector('.container');
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+        resetScoreBoard(false);
+        prepareInputs();
+    }
+
+    function resetScoreBoard(endGame) {
+        tries = 1;
+        if (endGame) {
+            playedGames = 0;
+            wonGames = 0;
+        }
+    }
+
+    function updateScoreBoard() {
+        const triesElement = document.querySelector('.scoreboard .tries .value');
+        triesElement.innerText = tries;
+        const playedGamesElement = document.querySelector('.scoreboard .playedGames .value');
+        playedGamesElement.innerText = playedGames;
+        const wonGamesElement = document.querySelector('.scoreboard .wonGames .value');
+        wonGamesElement.innerText = wonGames;
+    }
+
+    function newInput() {
+        const group = document.createElement('div');
+        group.className = "form-group";
+
+        const input = document.createElement('input');
+        input.className = "form-control";
+        input.maxLength = 1;
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key != 32 && (e.key < 48 || e.key > 57)) {
+                // Prevent the default action
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            }
+
+            if (e.key === 'Backspace') {
+                if (e.target.parentElement.previousSibling) {
+                    e.target.parentElement.previousSibling.firstChild.focus();
+                }
+            }
+        });
+
+        input.addEventListener('input', (e) => {
+            if (e.target.value.trim()) {
+                if (e.target.parentElement.nextSibling) {
+                    e.target.parentElement.nextSibling.firstChild.focus();
+                } else {
+                    validateWord();
+                }
+            }
+            input.value = input.value.replace(/\s/g, "");
+        });
+
+        group.appendChild(input);
+
+        return group;
+    }
+
+    function prepareInputs() {
+        let containerRow = document.querySelector('.container-row.active');
+
+        if (!containerRow) {
+            const container = document.querySelector('.container');
+            containerRow = document.createElement('div');
+            containerRow.className = "container-row active";
+            container.appendChild(containerRow);
+        }
+
+        updateScoreBoard();
+
+        while (containerRow.firstChild) {
+            containerRow.removeChild(containerRow.firstChild);
+        }
+
+        for (let i = 0; i < randomWord.length; i++) {
+            let input = newInput();
+            containerRow.appendChild(input);
+
+            if (i === 0) {
+                input.firstChild.focus();
+            }
+        }
+    }
+
+    function init() {
+        resetGame();
+        resetScoreBoard(true);
+
+        usedWords.push(randomWord);
+
+        const container = document.querySelector('.container');
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+
+        prepareInputs();
+    }
+
+    function validateWord() {
+        tries++;
+        const container = document.querySelector('.container-row.active');
+
+        let guessedWord = '';
+        for (let i = 0; i < randomWord.length; i++) {
+            const input = container.children[i].querySelector('input');
+            input.disabled = true;
+
+            if (input.value === randomWord[i]) {
+                input.classList.add('correct');
+            } else if (randomWord.includes(input.value)) {
+                input.classList.add('present');
+            } else {
+                input.classList.add('absent');
+            }
+
+            guessedWord += container.children[i].querySelector('input').value;
+        }
+
+        if (guessedWord === randomWord) {
+            wonGames++;
+            playedGames++;
+            if (wonGames < 5) {
+                if (confirm('Je hebt het woord geraden, speel nogmaals voor een extra cadeau')) {
+                    resetGame();
+                }
+            } else {
+                confirm(`Je hebt het maximaal aantal cadeau's gewonnen.`);
+                init();
+            }
+        } else if (container.parentElement.childNodes.length < maxTries) {
+            container.classList.remove('active');
+
+            prepareInputs();
+        } else {
+            confirm(`Helaas je hebt het niet gehaald binnen het aantal beurten. Het woord was '${randomWord}'`);
+            playedGames++;
+
+            resetGame();
+        }
+    }
+
+    init();
+</script>
+
+</html>
