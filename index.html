@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Suprise</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<style>
+    .background {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+    }
+
+    .application {
+        position: absolute;
+        z-index: 1;
+        left: 0;
+        right: 0;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #ccc;
+        border-radius: 10px;
+        width: fit-content;
+    }
+
+    .container-row {
+        display: flex;
+    }
+
+    input[type='range'] {
+        width: 450px;
+        text-align: center;
+        font-size: 10rem;
+        margin: 10px;
+        text-transform: uppercase;
+    }
+
+    .scoreboard {
+        display: flex;
+        font-size: 2rem;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .image {
+        max-width: 460px;
+        border-radius: 10px;
+    }
+
+    .item {
+        width: 500px;
+        background: #ccc;
+        border-radius: 10px;
+        padding: 10px 20px;
+        margin: 20px 0;
+    }
+
+    .selectedValue {
+        font-size: 3rem;
+    }
+
+    .range-row {
+        display: flex;
+        flex-direction: column;
+        padding: 10px 0;
+    }
+
+    button {
+        background: #0000a4;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        height: 48px;
+    }
+</style>
+
+<body>
+    <div class="application">
+        <div class="scoreboard">
+            <div class="tries">
+                <span>Poging:</span>
+                <span class="value">1</span>
+                <span>van 3</span>
+            </div>
+            <div class="playedGames">
+                <span>Gespeeld:</span>
+                <span class="value">0</span>
+            </div>
+            <div class="wonGames">
+                <span>Gewonnen:</span>
+                <span class="value">0</span>
+                <span>van 4</span>
+            </div>
+        </div>
+        <div class="item">
+            <h1 class="title"></h1>
+            <span class="description"></span>
+            <img class="image" />
+        </div>
+        <span class="selectedValue">0</span>
+        <div class="container">
+            <div class="container-row">
+                <div class="range-row">
+                    <input type="range" min="1" max="100" value="50">
+                    <button>Invoeren</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <img class="background" src="assets/Winter_Background.jpg">
+</body>
+<script>
+    let usedProducts = [];
+
+    const products = [
+        {
+            title: 'JEEP WRANGLER JK 3.6 284PK V6 SAHARA EDITION',
+            description: '',
+            image: 'https://images.marktplaats.com/api/v1/listing-mp-p/images/63/630353f0-d947-4764-8e11-47f3ae724285?rule=ecg_mp_eps$_86',
+            price: 10000,
+            min: 0,
+            max: 100000
+        },
+        {
+            title: 'Jeep',
+            description: '',
+            image: 'https://images.marktplaats.com/api/v1/listing-mp-p/images/63/630353f0-d947-4764-8e11-47f3ae724285?rule=ecg_mp_eps$_86',
+            price: 10000,
+            min: 0,
+            max: 100000
+        }
+    ];
+
+    const maxTries = 3;
+    let tries = 1;
+    let randomProduct = '';
+    let playedGames = 0;
+    let wonGames = 0;
+
+    function resetGame() {
+        randomProduct = products[Math.floor(Math.random() * products.length)];
+
+        if (usedProducts.includes(randomProduct)) {
+            resetGame();
+        }
+
+        const container = document.querySelector('.container');
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+        resetScoreBoard(false);
+        prepareInputs();
+        updateProduct();
+    }
+
+    function resetScoreBoard(endGame) {
+        tries = 1;
+        if (endGame) {
+            playedGames = 0;
+            wonGames = 0;
+        }
+    }
+
+    function updateProduct() {
+        const titleElement = document.querySelector('.item .title');
+        titleElement.innerText = randomProduct.title;
+        const descriptionElement = document.querySelector('.item .description');
+        descriptionElement.innerText = randomProduct.description;
+        const imageElement = document.querySelector('.item .image');
+        imageElement.src = randomProduct.image;
+
+    }
+
+    function updateScoreBoard() {
+        const triesElement = document.querySelector('.scoreboard .tries .value');
+        triesElement.innerText = tries;
+        const playedGamesElement = document.querySelector('.scoreboard .playedGames .value');
+        playedGamesElement.innerText = playedGames;
+        const wonGamesElement = document.querySelector('.scoreboard .wonGames .value');
+        wonGamesElement.innerText = wonGames;
+    }
+
+    function newInput() {
+        const group = document.createElement('div');
+        group.className = 'range-row';
+
+        const input = document.createElement('input');
+        input.type = "range";
+        input.min = randomProduct.min.toString();
+        input.max = randomProduct.max.toString();
+        const value = (randomProduct.max / 2).toString();
+        input.value = value;
+        document.querySelector('.selectedValue').innerHTML = value;
+        input.addEventListener('input', (e) => {
+            document.querySelector('.selectedValue').innerHTML = e.target.value;
+        });
+
+        group.appendChild(input);
+
+        const button = document.createElement('button');
+        button.innerText = 'Invoeren';
+        button.addEventListener('click', (e) => {
+            validateProduct();
+        });
+        group.appendChild(button);
+
+        return group;
+    }
+
+    function prepareInputs() {
+        let containerRow = document.querySelector('.container-row');
+
+        if (!containerRow) {
+            const container = document.querySelector('.container');
+            containerRow = document.createElement('div');
+            containerRow.className = "container-row";
+            container.appendChild(containerRow);
+            let input = newInput();
+            containerRow.appendChild(input);
+        }
+
+        updateScoreBoard();
+    }
+
+    function init() {
+        resetGame();
+        resetScoreBoard(true);
+
+        usedProducts.push(randomProduct);
+
+        const container = document.querySelector('.container');
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+
+        prepareInputs();
+    }
+
+    function validateProduct() {
+        tries++;
+        const container = document.querySelector('.container-row');
+
+        let price = 0;
+        const input = container.firstChild.querySelector('input');
+
+        const belowPrice = randomProduct.price * 0.95;
+        const abovePrice = randomProduct.price * 1.05;
+        if (input.value > belowPrice && input.value < abovePrice) {
+            wonGames++;
+            playedGames++;
+            if (wonGames < 4) {
+                if (confirm(`Je hebt de prijs ${randomProduct.price} geraden binnen de marges, speel nogmaals voor een extra cadeau`)) {
+                    resetGame();
+                }
+            } else {
+                confirm(`Je hebt het maximaal aantal cadeau's gewonnen.`);
+                init();
+            }
+        } else if (tries <= maxTries) {
+            confirm(`Dit is niet de juiste prijs, probeer nogmaals`);
+            prepareInputs();
+        } else {
+            confirm(`Helaas je hebt het niet gehaald binnen het aantal beurten. De prijs was '${randomProduct.price}'`);
+            playedGames++;
+
+            resetGame();
+        }
+    }
+
+    init();
+</script>
+
+</html>
