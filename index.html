@@ -27,6 +27,13 @@
         align-items: center;
     }
 
+    .background-container {
+        background: #ccc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
     .container {
         display: flex;
         flex-direction: column;
@@ -66,6 +73,9 @@
         border-radius: 10px;
         padding: 10px 20px;
         margin: 20px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .selectedValue {
@@ -93,7 +103,7 @@
             <div class="tries">
                 <span>Poging:</span>
                 <span class="value">1</span>
-                <span>van 3</span>
+                <span>van 5</span>
             </div>
             <div class="playedGames">
                 <span>Gespeeld:</span>
@@ -105,19 +115,21 @@
                 <span>van 4</span>
             </div>
         </div>
-        <div class="item">
-            <h1 class="title"></h1>
-            <span class="description"></span>
-            <img class="image" />
-        </div>
-        <span class="selectedValue">0</span>
-        <div class="container">
-            <div class="container-row">
-                <div class="range-row">
-                    <input type="range" min="1" max="100" value="50">
-                    <button>Invoeren</button>
+        <div class="background-container">
+            <span class="selectedValue">0</span>
+            <div class="container">
+                <div class="container-row">
+                    <div class="range-row">
+                        <input type="range" min="1" max="100" value="50">
+                        <button>Invoeren</button>
+                    </div>
                 </div>
             </div>
+        </div>
+        <div class="item">
+            <h1 class="title"></h1>
+            <p class="description"></p>
+            <img class="image" />
         </div>
     </div>
     <img class="background" src="assets/Winter_Background.jpg">
@@ -128,23 +140,39 @@
     const products = [
         {
             title: 'JEEP WRANGLER JK 3.6 284PK V6 SAHARA EDITION',
-            description: '',
+            description: "Merk: JEEP \n Uitvoering:WRANGLER SAHARA\n Aantal deuren: 5 \n Transmissie: Automaat/Tiptronic \n Bouwjaar: 28-02-2013 \n Apk : 14-03-2025  \n Kilometerstand: 142.000 Km \n Kleur: Mos Groen \n Aantal cilinders: 6  \n Interieurkleur: SAHARA",
             image: 'https://images.marktplaats.com/api/v1/listing-mp-p/images/63/630353f0-d947-4764-8e11-47f3ae724285?rule=ecg_mp_eps$_86',
-            price: 10000,
+            price: 29500,
             min: 0,
-            max: 100000
+            max: 50000
         },
         {
-            title: 'Jeep',
-            description: '',
-            image: 'https://images.marktplaats.com/api/v1/listing-mp-p/images/63/630353f0-d947-4764-8e11-47f3ae724285?rule=ecg_mp_eps$_86',
-            price: 10000,
-            min: 0,
-            max: 100000
+            title: 'Type Cube Exclusive, Kavel 94, Brabantse Weelde',
+            description: 'Kenmerken \n Bouwjaar 2024 \n Perceel Eigen grond m2 \n Perceel opp. +- 300 m2 \n Woonopp. 65 \n Slaapkamers 2 \n Badkamers 1 \n Toiletten 1  \n Tuin Verzorgd',
+            image: 'https://vakantiehuismakelaars.nl/wp-content/uploads/2024/02/Cube-Exclusive-XL-Brabantse-Weelde_15.jpg',
+            price: 207500,
+            min: 200000,
+            max: 220000
+        },
+        {
+            title: 'Nieuw partij ondergoed inclusief verpakking',
+            description: '289 stuks nieuwe onderbroeken in verpakking met eigen logo en eigen merk.',
+            image: 'https://www.partijhandelaren.nl/images/partijen/thumbs-big/1733853465-Photoroom-20241102_141237-s-1.jpg',
+            price: 2000,
+            min: 1000,
+            max: 2500
+        },
+        {
+            title: 'Led Mirror Clock 80 stuks',
+            description: 'Digitale klok/wekker met alarm functie.',
+            image: 'https://www.partijhandelaren.nl/images/partijen/thumbs-big/1733318199-Klok-1.jpg',
+            price: 200,
+            min: 50,
+            max: 250
         }
     ];
 
-    const maxTries = 3;
+    const maxTries = 5;
     let tries = 1;
     let randomProduct = '';
     let playedGames = 0;
@@ -201,7 +229,7 @@
         input.type = "range";
         input.min = randomProduct.min.toString();
         input.max = randomProduct.max.toString();
-        const value = (randomProduct.max / 2).toString();
+        const value = (randomProduct.min + ((randomProduct.max - randomProduct.min) / 2)).toString();
         input.value = value;
         document.querySelector('.selectedValue').innerHTML = value;
         input.addEventListener('input', (e) => {
