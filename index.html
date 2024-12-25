@@ -247,9 +247,15 @@
         input.max = randomProduct.max.toString();
         const value = (randomProduct.min + ((randomProduct.max - randomProduct.min) / 2)).toString();
         input.value = value;
-        document.querySelector('.selectedValue').innerHTML = value;
+        document.querySelector('.selectedValue').innerHTML = new Intl.NumberFormat('nl-NL', {
+            style: 'currency',
+            currency: 'EUR'
+        }).format(value);
         input.addEventListener('input', (e) => {
-            document.querySelector('.selectedValue').innerHTML = e.target.value;
+            document.querySelector('.selectedValue').innerHTML = new Intl.NumberFormat('nl-NL', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(e.target.value);
         });
 
         group.appendChild(input);
